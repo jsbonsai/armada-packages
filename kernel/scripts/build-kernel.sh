@@ -50,13 +50,20 @@ fi
 # ---------- 1. Fetch upstream source ----------
 SRC_TARBALL="linux-${KERNEL_VERSION}.tar.xz"
 SRC_URL="https://cdn.kernel.org/pub/linux/kernel/v${KERNEL_MAJOR}.x/${SRC_TARBALL}"
+SNAPSHOT_TARBALL="linux-${KERNEL_VERSION}.tar.gz"
+SNAPSHOT_URL="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/snapshot/${SNAPSHOT_TARBALL}"
 
 cd "${WORK_DIR}"
-if [ ! -f "${SRC_TARBALL}" ]; then
+if [ ! -f "${SRC_TARBALL}" ] && [ ! -f "${SNAPSHOT_TARBALL}" ]; then
     echo "==> Downloading ${SRC_URL}"
-    curl -fsSL -O "${SRC_URL}"
+    if curl -fsSL -O "${SRC_URL}"; then
+        :
+    else
+        echo "==> CDN miss; fetching ${SNAPSHOT_URL}"
+        curl -fsSL -o "${SNAPSHOT_TARBALL}" "${SNAPSHOT_URL}"
+    fi
 else
-    echo "==> Using cached ${SRC_TARBALL}"
+    echo "==> Using cached kernel source tarball"
 fi
 
 SRC_DIR="${WORK_DIR}/linux-${KERNEL_VERSION}"
@@ -64,8 +71,16 @@ if [ -n "${FAST:-}" ] && [ -d "${SRC_DIR}" ]; then
     echo "==> FAST=1: reusing existing ${SRC_DIR} (skipping extract + patches)"
 else
     rm -rf "${SRC_DIR}"
-    echo "==> Extracting ${SRC_TARBALL}"
-    tar -xf "${SRC_TARBALL}"
+    if [ -f "${SRC_TARBALL}" ]; then
+        echo "==> Extracting ${SRC_TARBALL}"
+        tar -xf "${SRC_TARBALL}"
+    elif [ -f "${SNAPSHOT_TARBALL}" ]; then
+        echo "==> Extracting ${SNAPSHOT_TARBALL}"
+        tar -xf "${SNAPSHOT_TARBALL}"
+    else
+        echo "ERROR: no kernel source tarball in ${WORK_DIR}" >&2
+        exit 1
+    fi
 fi
 cd "${SRC_DIR}"
 PREFIX_MAP_FLAGS="-ffile-prefix-map=${SRC_DIR}=linux-${KERNEL_VERSION} -fdebug-prefix-map=${SRC_DIR}=linux-${KERNEL_VERSION} -fmacro-prefix-map=${SRC_DIR}=linux-${KERNEL_VERSION} -ffile-prefix-map=${WORK_DIR}=armada-kernel-build -fdebug-prefix-map=${WORK_DIR}=armada-kernel-build -fmacro-prefix-map=${WORK_DIR}=armada-kernel-build"
