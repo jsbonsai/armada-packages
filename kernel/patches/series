@@ -108,6 +108,7 @@ sm8750-adreno-a830-gpu-driver.patch
 0600-ROCKNIX-sm8750-tsens-thermal-zones.patch
 
 # ============== SM8250 (Retroid Pocket 5 / Flip 2) ==============
+0799-sm8250-qcom-spmi-haptics.patch
 0800-sm8250-input-retroid-pocket-gamepad.patch
 0801-sm8250-retroid-gamepad-ff.patch
 0802-sm8250-pm8150b.patch

@@ -230,6 +230,9 @@ to a commit, or `armada` if it's original; a URL source with no `notes` is verba
   source: https://github.com/ROCKNIX/distribution/blob/54b7a6585895ecbc8082f4b678b135b9b7e4c573/projects/ROCKNIX/devices/SM8250/linux/dts/qcom/sm8250-retroidpocket-rp5.dts
 - `dts/sm8250-retroidpocket-flip2.dts`
   source: https://github.com/ROCKNIX/distribution/blob/54b7a6585895ecbc8082f4b678b135b9b7e4c573/projects/ROCKNIX/devices/SM8250/linux/dts/qcom/sm8250-retroidpocket-flip2.dts
+- `patches/0799-sm8250-qcom-spmi-haptics.patch`
+  source: https://github.com/ROCKNIX/distribution/blob/54b7a6585895ecbc8082f4b678b135b9b7e4c573/projects/ROCKNIX/devices/SM8250/patches/linux/0009-qcom-spmi-haptics.patch
+  notes: required on 7.0.11 — driver not in mainline tree yet; 0801 FF hook depends on it
 - `patches/0800-sm8250-input-retroid-pocket-gamepad.patch`
   source: https://github.com/ROCKNIX/distribution/blob/54b7a6585895ecbc8082f4b678b135b9b7e4c573/projects/ROCKNIX/devices/SM8250/patches/linux/0008-retroid-gamepad.patch
 - `patches/0801-sm8250-retroid-gamepad-ff.patch`
