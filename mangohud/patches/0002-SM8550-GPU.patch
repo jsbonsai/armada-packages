@@ -1,11 +1,11 @@
 From 6980e956be449122ed8aa8554273a4c3ed6ac4d3 Mon Sep 17 00:00:00 2001
 From: John Williams <porschemad911@gmail.com>
 Date: Tue, 12 May 2026 10:12:28 +1000
-Subject: [PATCH] SM8550 GPU
+Subject: [PATCH] Qualcomm Adreno GPU (SM8550 + SM8250)
 
 ---
- src/gpu_fdinfo.cpp | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ src/gpu_fdinfo.cpp | 10 +++++++---
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/src/gpu_fdinfo.cpp b/src/gpu_fdinfo.cpp
 index c4d63f5..9ce029a 100644
@@ -16,7 +16,13 @@ index c4d63f5..9ce029a 100644
  
      if (module == "msm_drm" || module == "msm_dpu" )
 -        hwmon = find_hwmon_sensor_dir("gpu");
++    {
 +        hwmon = find_hwmon_sensor_dir("gpuss_0_thermal");
++        if (hwmon.empty())
++            hwmon = find_hwmon_sensor_dir("gpu_top_thermal");
++        if (hwmon.empty())
++            hwmon = find_hwmon_sensor_dir("gpu");
++    }
      else if (module == "panfrost" || module == "panthor")
          hwmon = find_hwmon_sensor_dir("gpu_thermal");
      else

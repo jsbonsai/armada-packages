@@ -1,7 +1,7 @@
 name: mangohud
 on:
   push:
-    branches: [main]
+    branches: [main, sm8250]
     paths: ['mangohud/**', 'oci/**', '.github/workflows/mangohud.yml', '.github/workflows/_package-image.yml', 'toolchain.env']
   workflow_dispatch:
 permissions:

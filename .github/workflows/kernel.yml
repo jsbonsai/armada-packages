@@ -1,7 +1,7 @@
 name: kernel
 on:
   push:
-    branches: [main]
+    branches: [main, sm8250]
     paths: ['kernel/**', 'oci/**', '.github/workflows/kernel.yml', '.github/workflows/_package-image.yml', 'toolchain.env']
   workflow_dispatch:
 permissions:

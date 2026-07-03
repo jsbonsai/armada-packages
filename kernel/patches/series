@@ -106,3 +106,17 @@ sm8750-adreno-a830-gpu-driver.patch
 0044-clk-qcom-gcc-sm8750-Do-not-turn-off-PCIe-GDSCs-durin.patch
 0045-Bluetooth-qca-add-WCN7860-support.patch
 0600-ROCKNIX-sm8750-tsens-thermal-zones.patch
+
+# ============== SM8250 (Retroid Pocket 5 / Flip 2) ==============
+0800-sm8250-input-retroid-pocket-gamepad.patch
+0801-sm8250-retroid-gamepad-ff.patch
+0802-sm8250-pm8150b.patch
+0803-sm8250-pm8150b-charger.patch
+0804-sm8250-pm8150-nvmem.patch
+0805-sm8250-uart.patch
+0806-sm8250-msm-dsi-wide-bus-bpp.patch
+0807-sm8250-rp5-smooth-brightness.patch
+0808-sm8250-q6asm-dai-periods.patch
+0809-sm8250-revert-force-16bit-audio.patch
+0810-sm8250-wsa881x-shared-powerdown-gpio.patch
+0811-sm8250-headphone-jack-detection.patch
