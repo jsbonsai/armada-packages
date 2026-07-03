@@ -4,14 +4,14 @@ Date: Tue, 12 May 2026 10:12:28 +1000
 Subject: [PATCH] Qualcomm Adreno GPU (SM8550 + SM8250)
 
 ---
- src/gpu_fdinfo.cpp | 10 +++++++---
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ src/gpu_fdinfo.cpp | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
 diff --git a/src/gpu_fdinfo.cpp b/src/gpu_fdinfo.cpp
 index c4d63f5..9ce029a 100644
 --- a/src/gpu_fdinfo.cpp
 +++ b/src/gpu_fdinfo.cpp
-@@ -192,7 +192,7 @@ void GPU_fdinfo::find_hwmon_sensors()
+@@ -192,7 +192,13 @@ void GPU_fdinfo::find_hwmon_sensors()
      std::string hwmon;
  
      if (module == "msm_drm" || module == "msm_dpu" )
@@ -26,7 +26,7 @@ index c4d63f5..9ce029a 100644
      else if (module == "panfrost" || module == "panthor")
          hwmon = find_hwmon_sensor_dir("gpu_thermal");
      else
-@@ -655,7 +655,7 @@ float GPU_fdinfo::amdgpu_helper_get_proc_vram() {
+@@ -655,7 +661,7 @@ float GPU_fdinfo::amdgpu_helper_get_proc_vram() {
  }
  
  void GPU_fdinfo::init_kgsl() {
@@ -37,4 +37,3 @@ index c4d63f5..9ce029a 100644
          if (!fs::exists(sys_path)) {
 -- 
 2.47.3
-
