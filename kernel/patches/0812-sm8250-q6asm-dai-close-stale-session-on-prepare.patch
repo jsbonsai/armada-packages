@@ -1,0 +1,65 @@
+From: Armada SM8250 bring-up <jsbonsai@users.noreply.github.com>
+Date: Sat, 4 Jul 2026 15:10:00 -0700
+Subject: [PATCH] ASoC: qcom: q6asm-dai: close stale session on re-prepare
+
+TRIGGER_STOP only sets prtd->state = Q6ASM_STREAM_STOPPED; it does not
+send CMD_CLOSE or unmap the shared-memory regions. When ALSA XRUN
+recovery (or any stop -> prepare cycle) calls q6asm_dai_prepare again,
+the RUNNING-only cleanup branch is skipped, q6asm_map_memory_regions is
+called on an already-mapped session, and the ADSP rejects it with error
+9 ("Buffer already allocated", cmd 0x10db3). The error path then frees
+the audio client, every subsequent prepare logs "private data null or
+audio client freed", and the leaked ADSP-side mapping wedges the DSP
+until reboot.
+
+Track whether a session is prepared and tear it down before setting up
+a new one, mirroring what the RUNNING branch already does.
+
+Observed on SM8250 (Retroid Pocket 5): game-launch CPU spikes cause an
+XRUN, after which the speaker PCM is permanently dead and q6asm logs
+the error-9 signature above.
+---
+--- a/sound/soc/qcom/qdsp6/q6asm-dai.c	2026-07-04 15:03:25
++++ b/sound/soc/qcom/qdsp6/q6asm-dai.c	2026-07-04 15:03:42
+@@ -71,6 +71,7 @@
+ 	uint32_t stream_id;
+ 	uint16_t session_id;
+ 	enum stream_state state;
++	bool prepared;
+ 	uint32_t initial_samples_drop;
+ 	uint32_t trailing_samples_drop;
+ 	bool notify_on_drain;
+@@ -225,7 +226,14 @@
+ 
+ 	prtd->pcm_count = snd_pcm_lib_period_bytes(substream);
+ 	/* rate and channels are sent to audio driver */
+-	if (prtd->state == Q6ASM_STREAM_RUNNING) {
++	/*
++	 * Also tear down a prepared-but-stopped session: XRUN recovery calls
++	 * prepare again after TRIGGER_STOP (which does not close the stream),
++	 * and re-mapping an already-mapped buffer makes the ADSP return
++	 * error 9 ("Buffer already allocated"), after which the error path
++	 * frees the audio client and the ADSP-side mapping is leaked.
++	 */
++	if (prtd->state == Q6ASM_STREAM_RUNNING || prtd->prepared) {
+ 		/* clear the previous setup if any  */
+ 		q6asm_cmd(prtd->audio_client, prtd->stream_id, CMD_CLOSE);
+ 		q6asm_unmap_memory_regions(substream->stream,
+@@ -233,6 +241,7 @@
+ 		q6routing_stream_close(soc_prtd->dai_link->id,
+ 					 substream->stream);
+ 		prtd->state = Q6ASM_STREAM_STOPPED;
++		prtd->prepared = false;
+ 	}
+ 
+ 	ret = q6asm_map_memory_regions(substream->stream, prtd->audio_client,
+@@ -268,6 +277,7 @@
+ 		dev_err(dev, "%s: stream reg failed ret:%d\n", __func__, ret);
+ 		goto routing_err;
+ 	}
++	prtd->prepared = true;
+ 
+ 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
+ 		ret = q6asm_media_format_block_multi_ch_pcm(
+-- 
+2.34.1
