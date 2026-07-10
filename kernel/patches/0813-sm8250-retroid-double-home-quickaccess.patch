@@ -1,0 +1,60 @@
+From: Armada SM8250 bring-up <jsbonsai@users.noreply.github.com>
+Date: Thu, 10 Jul 2026 15:20:00 -0700
+Subject: [PATCH] Input: retroid - double-press Home emits Back (quick-access)
+
+The Retroid Pocket Flip 2 lacks the dedicated Back button that opens
+the SteamOS quick-access menu on the Pocket 5 (InputPlumber maps
+BTN_BACK -> QuickAccess). Detect a double-press of Home (BTN_MODE)
+within 450ms in the MCU report parser and emit a BTN_BACK pulse
+alongside it. Userspace approaches (evdev watchers, hidraw sniffing,
+InputPlumber intercept chords) all fail because the compositor and
+InputPlumber hold exclusive grabs, and intercept mode locks input by
+design; the driver is the one place that reliably sees the raw button.
+
+Applies to both RP5 and Flip 2, giving a consistent double-tap-Home
+gesture for the quick-access menu.
+---
+--- a/drivers/input/joystick/retroid.c	2026-07-10 15:10:07
++++ b/drivers/input/joystick/retroid.c	2026-07-10 15:11:19
+@@ -14,6 +14,7 @@
+ #include <linux/gpio/consumer.h>
+ #include <linux/init.h>
+ #include <linux/input.h>
++#include <linux/jiffies.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+@@ -245,7 +246,30 @@
+ 	bitmap_xor(&changes, &current_states, &prev_states, ARRAY_SIZE(keymap));
+ 
+ 	for_each_set_bit(i, &changes, ARRAY_SIZE(keymap)) {
+-		input_report_key(indev, keymap[i], (current_states & BIT(i)));
++		bool pressed = !!(current_states & BIT(i));
++
++		/*
++		 * Double-press Home also emits a Back pulse: the Flip 2 has no
++		 * dedicated Back button, and Back opens the SteamOS quick-access
++		 * menu (InputPlumber maps BTN_BACK -> QuickAccess).
++		 */
++		if (keymap[i] == BTN_MODE && pressed) {
++			static unsigned long last_mode_press;
++
++			if (last_mode_press &&
++			    time_before(jiffies, last_mode_press +
++						msecs_to_jiffies(450))) {
++				input_report_key(indev, BTN_BACK, 1);
++				input_sync(indev);
++				input_report_key(indev, BTN_BACK, 0);
++				input_sync(indev);
++				last_mode_press = 0;
++			} else {
++				last_mode_press = jiffies;
++			}
++		}
++
++		input_report_key(indev, keymap[i], pressed);
+ 	}
+ 
+ 	int16_t value;
+-- 
+2.34.1

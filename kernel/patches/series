@@ -122,3 +122,4 @@ sm8750-adreno-a830-gpu-driver.patch
 0810-sm8250-wsa881x-shared-powerdown-gpio.patch
 0811-sm8250-headphone-jack-detection.patch
 0812-sm8250-q6asm-dai-close-stale-session-on-prepare.patch
+0813-sm8250-retroid-double-home-quickaccess.patch
