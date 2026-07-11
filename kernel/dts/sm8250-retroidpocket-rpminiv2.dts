@@ -1,0 +1,33 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Retroid Pocket Mini V2 (SM8250) — derived from the RP5 like the Flip 2.
+ * The near-square 1080x1240 ch13726a panel variant and its touch geometry are
+ * the only display differences; the shared common.dtsi carries all the DSI
+ * electrical config. Panel rotation is dropped (RP5 uses 270) and the touch
+ * axis inversions are removed to match the Mini V2's physical orientation —
+ * this combination was hardware-validated on the device before baking.
+ */
+
+/dts-v1/;
+
+#include "sm8250-retroidpocket-rp5.dts"
+
+/ {
+	model = "Retroid Pocket Mini V2";
+	compatible = "retroidpocket,rpminiv2", "qcom,sm8250";
+};
+
+&mdss_dsi0 {
+	panel@0 {
+		compatible = "ch13726a,rpminiv2";
+		/delete-property/ rotation;
+	};
+};
+
+&i2c13 {
+	touchscreen@38 {
+		touchscreen-size-y = <1240>;
+		/delete-property/ touchscreen-inverted-x;
+		/delete-property/ touchscreen-inverted-y;
+	};
+};
