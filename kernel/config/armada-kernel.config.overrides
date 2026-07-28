@@ -267,3 +267,8 @@ CONFIG_SND_SOC_WSA881X=m
 CONFIG_VIDEO_QCOM_VENUS=m
 CONFIG_BATTERY_QCOM_FG=m
 CONFIG_CHARGER_QCOM_SMB5=m
+# Case-insensitive ext4 (casefold) — Steam/SteamOS formats SD cards with -O
+# casefold for Proton compat; without CONFIG_UNICODE the freshly-formatted card
+# cannot be mounted ("casefold feature cannot be mounted without CONFIG_UNICODE")
+# and Steam reports the format as failed. (Fixes SD formatting on all SM8250.)
+CONFIG_UNICODE=y
